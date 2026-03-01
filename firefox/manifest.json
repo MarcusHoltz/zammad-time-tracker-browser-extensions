@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Zammad Time Tracker",
+  "version": "1.0",
+  "description": "Log and submit time to Zammad tickets directly from your browser. Supports per-ticket timers, manual time entry, and note submission.",
+  "permissions": ["storage"],
+  "host_permissions": ["<all_urls>"],
+  "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" },
+  "action": { "default_popup": "popup.html", "default_icon": "icon48.png" },
+  "options_page": "settings.html",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "zammad-time-tracker@holtzweb.com",
+      "strict_min_version": "128.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
+}
