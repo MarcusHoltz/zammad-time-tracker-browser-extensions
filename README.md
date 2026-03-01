@@ -1,5 +1,5 @@
 # zammad-time-tracker-browser-extensions
-Chrome and Firefox extensions to track and submit time to Zammad tickets.
+Chrome and [Firefox](https://github.com/MarcusHoltz/zammad-time-tracker-browser-extensions/tree/main/firefox) extensions to track and submit time to Zammad tickets.
 
 
 
