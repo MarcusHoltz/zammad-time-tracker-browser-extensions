@@ -54,12 +54,12 @@ Existing time entries load below the ticket. Click any value to edit → **Save*
 
 ## Privacy Policy
 
-Zammad Time Tracker does not collect, transmit, or share any personal data.
+Zammad Time Tracker **does not** collect, transmit, or share any personal data.
 
 All data entered into the extension — including your Zammad URL, API token, ticket IDs, timer state, and notes — is stored exclusively in your browser using chrome.storage.local.
 
 This storage is sandboxed to the extension and is not accessible to any website or third party.
 
-The only outbound network requests made by this extension are to the Zammad URL you configure yourself. No data is sent to the extension developer or any third party.
+The only outbound network requests made by this extension are to the Zammad URL you configured yourself. No data is sent to the extension, a library, bug tracking, error logs, some random developer, or any third party of any kind.
 
-There is no analytics, no telemetry, and no remote logging of any kind.
+**There are no analytics, no telemetry, and no remote logging of any kind.**
