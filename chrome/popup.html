@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      width: 270px;
+      padding: 12px;
+      font-size: 13px;
+    }
+
+    .row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+
+    button {
+      padding: 6px 10px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      background: #f0f0f0;
+      cursor: pointer;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    button:hover:not(:disabled) { background: #e0e0e0; }
+    button:disabled { opacity: 0.45; cursor: default; }
+
+    #ticketInput { flex: 1; }
+
+    /* Ticket info block shown after a successful load */
+    #ticketInfo {
+      background: #f7f7f7;
+      border: 1px solid #ddd;
+      border-radius: 3px;
+      padding: 6px 8px;
+      margin-bottom: 8px;
+      display: none;
+      line-height: 1.5;
+    }
+    #ticketTitle { font-weight: bold; }
+    #accountedTime { color: #555; font-size: 12px; }
+
+    /* Big editable timer */
+    #timeInput {
+      width: 100%;
+      font-family: monospace;
+      font-size: 30px;
+      text-align: center;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      margin-bottom: 8px;
+      letter-spacing: 3px;
+    }
+
+    #toggleBtn { flex: 2; }
+    #resetBtn  { flex: 1; }
+
+    textarea {
+      display: block;
+      width: 100%;
+      resize: vertical;
+      min-height: 48px;
+      margin-bottom: 8px;
+    }
+
+    #submitBtn { width: 100%; margin-bottom: 6px; }
+
+    #status {
+      font-size: 11px;
+      text-align: center;
+      min-height: 14px;
+      color: #444;
+      word-break: break-word;
+    }
+    #status.error { color: #c00; }
+    #status.ok    { color: #080; }
+
+    /* Dark mode */
+    body.dark { background: #1e1e1e; color: #e0e0e0; }
+    body.dark input[type="text"],
+    body.dark textarea { background: #2a2a2a; color: #e0e0e0; border-color: #555; }
+    body.dark button { background: #333; color: #e0e0e0; border-color: #555; }
+    body.dark button:hover:not(:disabled) { background: #444; }
+    body.dark #ticketInfo { background: #2a2a2a; border-color: #555; }
+    body.dark #timeInput { background: #2a2a2a; color: #e0e0e0; border-color: #555; }
+    body.dark .entry-row input { background: #2a2a2a; color: #e0e0e0; border-color: #555; }
+    body.dark #status.ok { color: #6c6; }
+    body.dark #status.error { color: #f77; }
+
+    .entry-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 4px;
+      font-size: 12px;
+    }
+    .entry-row input {
+      width: 70px;
+      padding: 3px 5px;
+      font-size: 12px;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      font-family: monospace;
+    }
+    .entry-row .entry-date { color: #888; flex: 1; }
+    .entry-row button {
+      padding: 2px 7px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="row">
+    <input id="ticketInput" type="text" placeholder="Ticket ID">
+    <button id="loadBtn">Load</button>
+  </div>
+
+  <div id="ticketInfo">
+    <div id="ticketTitle"></div>
+    <div id="accountedTime"></div>
+  </div>
+
+  <!-- Existing time entries, shown after Load -->
+  <div id="entriesSection" style="display:none; margin-bottom:8px;">
+    <div style="font-size:11px; color:#888; margin-bottom:4px;">Existing entries (click to edit)</div>
+    <div id="entriesList"></div>
+  </div>
+
+  <input id="timeInput" type="text" value="00:00:00"
+         spellcheck="false" title="Edit time manually, e.g. 01:30:00">
+
+  <div class="row">
+    <button id="toggleBtn" disabled>Start</button>
+    <button id="resetBtn"  disabled>Reset</button>
+  </div>
+
+  <textarea id="note" placeholder="Note (optional)"></textarea>
+
+  <button id="submitBtn" disabled>Submit Time</button>
+
+  <div id="status"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
