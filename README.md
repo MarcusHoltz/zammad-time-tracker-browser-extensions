@@ -1,11 +1,22 @@
 # Zammad Time Tracker Browser Addons - Firefox and Chrome
 
-[Chrome](https://github.com/MarcusHoltz/zammad-time-tracker-browser-extensions/tree/main/chrome) and [Firefox](https://github.com/MarcusHoltz/zammad-time-tracker-browser-extensions/tree/main/firefox) extensions to track and submit time to Zammad tickets.
+[Chrome](https://chromewebstore.google.com/detail/gocmjpkkdjfgbakcjahehcogmgpopjdk) and [Firefox](https://addons.mozilla.org/en-US/firefox/addon/zammad-time-tracker/) extensions to track and submit time to Zammad tickets.
 
 
 * * *
 
 ![Zammad Time Tracking entering time and adjusting time while viewing time entries within the ticket](https://raw.githubusercontent.com/MarcusHoltz/marcusholtz.github.io/refs/heads/main/assets/img/posts/zammad-time-tracker-screenshot.png)
+
+* * *
+
+
+## Repository Folders
+
+This repository has a folder for each of the different browser's addons:
+
+- [Chrome](https://github.com/MarcusHoltz/zammad-time-tracker-browser-extensions/tree/main/chrome)
+
+- [Firefox](https://github.com/MarcusHoltz/zammad-time-tracker-browser-extensions/tree/main/firefox)
 
 
 * * *
