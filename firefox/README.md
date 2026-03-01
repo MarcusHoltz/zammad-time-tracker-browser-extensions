@@ -2,13 +2,14 @@
 
 |                             |                                      |
 |-----------------------------|--------------------------------------|
-| Track and submit time to Zammad tickets directly from Firefox.      | ![Zammad Time Tracker clock with a Firefox background](https://raw.githubusercontent.com/MarcusHoltz/marcusholtz.github.io/refs/heads/main/assets/img/posts/zammad-time-tracker-firefox.png)  |
+| [Track and submit time to Zammad tickets directly from Firefox.](https://addons.mozilla.org/en-US/firefox/addon/zammad-time-tracker/)      |    ![Zammad Time Tracker clock with a Firefox background](https://raw.githubusercontent.com/MarcusHoltz/marcusholtz.github.io/refs/heads/main/assets/img/posts/zammad-time-tracker-firefox.png)    |
 
 
 ---
 
 ## Install (until Mozilla approves the addon)
 
+0. Download the [Zammad Time Tracker by Holtzweb](https://addons.mozilla.org/en-US/firefox/addon/zammad-time-tracker/) Firefox browser add-on
 1. Download this repo → **Code → Download ZIP**, unzip it
 2. Firefox → `about:debugging` → **This Firefox** → **Load Temporary Add-on**
 3. Select any file inside the unzipped folder
