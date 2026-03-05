@@ -7,31 +7,31 @@
 
 ---
 
-## Install (until Mozilla approves the addon)
+## Install
 
-0. Download the [Zammad Time Tracker by Holtzweb](https://addons.mozilla.org/en-US/firefox/addon/zammad-time-tracker/) Firefox browser add-on
-1. Download this repo → **Code → Download ZIP**, unzip it
-2. Firefox → `about:debugging` → **This Firefox** → **Load Temporary Add-on**
-3. Select any file inside the unzipped folder
+1. Visit the [Zammad Time Tracker by Holtzweb](https://addons.mozilla.org/en-US/firefox/addon/zammad-time-tracker/) Firefox browser add-on
+2. Click on **'5'** stars
+3. Download and install with "Add to Firefox" button
 4. Done — the icon appears in your toolbar
 
-> Temporary add-ons unload when Firefox closes. 
 
 ---
 
 ## Configure
 
-**Right-click the toolbar icon → Preferences**
+Click the extension icon → **right-click → Options**
 
-| Field | Value |
+| Field | What to put |
 |---|---|
-| Base URL | `https://support.yourcompany.com` — no trailing slash |
-| API Token | Zammad → Profile → Token Access → **Create** (`ticket.agent` permission required) |
-| Note Signature | Appended to every submitted note, e.g. `Logged via browser` |
-| Include time in note | Adds `Time submitted: X min` to the note body |
+| Base URL | Your Zammad URL, e.g. `https://support.yourcompany.com` |
+| API Token | Profile → Token Access → **Create** (needs `ticket.agent` permission) |
+| Note Signature | Optional. Appended to every time note, e.g. `Logged via browser` |
+| Include time in note | Adds `time submitted: X min` to the note body |
 | Dark mode | ✓ |
+| Enable Activity Type | Allows time to be tracked with an activity type (e.g. `Billable`). |
 
-**Save.**
+Hit **Save**. Done.
+
 
 ---
 
@@ -40,11 +40,13 @@
 | Step | Action |
 |---|---|
 | 1 | Type a ticket ID → **Load** |
+| 2 | Current time entries are displayed. | 
 | 2 | **Start** → work → **Pause** |
 | 3 | Forgot to pause? Click the time field, type the correct value (`01:30:00`) |
 | 4 | Add a note (optional) → **Submit Time** |
+| 5 | Edit a time entry → **Save**. 
+| 6 | Remove a time entry → red **-** button
 
-Existing time entries load below the ticket. Click any value to edit → **Save**.
 
 ---
 
@@ -53,6 +55,8 @@ Existing time entries load below the ticket. Click any value to edit → **Save*
 - Firefox 128+
 - Zammad 6.x with Time Accounting enabled (`Admin → Time Accounting`)
 - API token with `ticket.agent` permission
+- (optional) Time Accounting enabled in your Zammad admin settings (`Admin → Time Accounting`)
+
 
 ---
 
