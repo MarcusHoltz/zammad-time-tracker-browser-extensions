@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Zammad Time Tracker",
-  "version": "1.0",
-  "description": "Log & submit time to Zammad tickets directly from your browser. Supports per-ticket timers, manual time entry, note submission.",
+  "version": "1.2",
+  "description": "Log and submit time to Zammad tickets directly from your browser. Supports per-ticket timers, manual time entry, and note submission.",
   "permissions": ["storage"],
   "host_permissions": ["<all_urls>"],
   "icons": { "16": "icon16.png", "48": "icon48.png", "128": "icon128.png" },
