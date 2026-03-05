@@ -5,7 +5,6 @@
 |   [Track and submit time to Zammad tickets directly from Chrome.](https://chromewebstore.google.com/detail/gocmjpkkdjfgbakcjahehcogmgpopjdk)      |      ![Zammad Time Tracker clock with a Chrome based background](https://raw.githubusercontent.com/MarcusHoltz/marcusholtz.github.io/refs/heads/main/assets/img/posts/zammad-time-tracker-chrome.png)    |
 
 
-
 ---
 
 ## Install (until Google approves the addon)
@@ -27,8 +26,9 @@ Click the extension icon → **right-click → Options**
 | Base URL | Your Zammad URL, e.g. `https://support.yourcompany.com` |
 | API Token | Profile → Token Access → **Create** (needs `ticket.agent` permission) |
 | Note Signature | Optional. Appended to every time note, e.g. `Logged via browser` |
-| Include time in note | Adds `Time submitted: X min` to the note body |
+| Include time in note | Adds `time submitted: X min` to the note body |
 | Dark mode | ✓ |
+| Enable Activity Type | Allows time to be tracked with an activity type (e.g. `Billable`). |
 
 Hit **Save**. Done.
 
@@ -39,20 +39,21 @@ Hit **Save**. Done.
 | Step | Action |
 |---|---|
 | 1 | Type a ticket ID → **Load** |
+| 2 | Current time entries are displayed. | 
 | 2 | **Start** → work → **Pause** |
 | 3 | Forgot to pause? Click the time field, type the correct value (`01:30:00`) |
 | 4 | Add a note (optional) → **Submit Time** |
-
-Existing time entries load below the ticket. Click any value to edit → **Save**.
+| 5 | Edit a time entry → **Save**. 
+| 6 | Remove a time entry → red **-** button
 
 ---
 
 ## Requirements
 
-- Chrome (or any Chromium browser)
+- Chrome (or any Chromium based browser)
 - Zammad 6.x
 - API token with `ticket.agent` permission
-- Time Accounting enabled in your Zammad admin settings (`Admin → Time Accounting`)
+- (optional) Time Accounting enabled in your Zammad admin settings (`Admin → Time Accounting`)
 
 ---
 
