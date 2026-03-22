@@ -1,6 +1,9 @@
 # Zammad Time Tracker — Firefox <img src='https://raw.githubusercontent.com/MarcusHoltz/marcusholtz.github.io/refs/heads/main/assets/img/posts/zammad-time-tracker-firefox.png' align="right" width="25%" min-width="120px"/>
 
 
+[Track and submit time to Zammad tickets directly from Firefox.](https://addons.mozilla.org/en-US/firefox/addon/zammad-time-tracker/)  
+
+
 ---
 
 ## Install
