@@ -6,13 +6,12 @@
 
 ---
 
-## Install (until Google approves the addon)
+## Install
 
 0. Download the [Zammad Time Tracker](https://chromewebstore.google.com/detail/gocmjpkkdjfgbakcjahehcogmgpopjdk) in the Chrome web store
-1. Download this repo as a ZIP → **Code → Download ZIP** and unzip it
-2. Open Chrome → `chrome://extensions` → enable **Developer mode** (top right)
-3. Click **Load unpacked** → select the unzipped folder
-4. Pin the extension from the puzzle-piece menu
+1. Customize Zammad Time Track from the puzzle-piece menu
+2. Click the "..." next to Zammad Time Tracker and then click on "Options"
+3. From here you can begin to setup Zammad Time Tracker
 
 ---
 
