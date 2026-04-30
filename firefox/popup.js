@@ -59,10 +59,7 @@ async function postTimeAccounting(ticketId, minutes, note, typeName = null) {
   });
 }
 
-/**
- * /api/v1/tickets/{ticket_id}/time_accountings/{id}
- * Requires admin.time_accounting permission in Zammad.
- */
+// Requires admin.time_accounting permission in Zammad.
 async function patchTimeAccounting(ticketId, entryId, minutes) {
   return zammadFetch(`/api/v1/tickets/${ticketId}/time_accountings/${entryId}`, {
     method: 'PATCH',
@@ -70,15 +67,42 @@ async function patchTimeAccounting(ticketId, entryId, minutes) {
   });
 }
 
-// ---------------------------------------------------------------------------
-// Timer helpers
-// ---------------------------------------------------------------------------
-
 async function deleteTimeAccounting(ticketId, entryId) {
   return zammadFetch(`/api/v1/tickets/${ticketId}/time_accountings/${entryId}`, {
     method: 'DELETE'
   });
 }
+
+// Resolves a user-facing ticket number (e.g. 12345) to the internal ticket ID.
+async function resolveTicketNumber(raw) {
+  // Strip any prefix — accept "12345", "#12345", "Ticket#12345" etc.
+  // Extracts only the trailing digit sequence.
+  const normalized = raw.trim().replace(/^.*?(\d+)\s*$/, '$1');
+  if (!normalized) {
+    throw new Error(`Could not parse a ticket number from "${raw}".`);
+  }
+
+  // POST with an explicit ticket.number condition is the reliable exact-match
+  // method per the Zammad API. GET-based free-text search may not match the
+  // number field depending on the instance's search backend configuration.
+  const data = await zammadFetch('/api/v1/tickets/search?full=true', {
+    method: 'POST',
+    body: JSON.stringify({
+      condition: {
+        'ticket.number': { operator: 'is', value: normalized }
+      },
+      limit: 1
+    })
+  });
+
+  if (data.record_ids?.length) return String(data.record_ids[0]);
+
+  throw new Error(`No ticket found with number ${normalized}.`);
+}
+
+// ---------------------------------------------------------------------------
+// Timer helpers
+// ---------------------------------------------------------------------------
 
 // Decorates entries with a human-readable typeName by matching created_at timestamps
 // against the monthly activity log. Falls back to "#type_id" if the log is unavailable.
@@ -105,8 +129,6 @@ async function resolveTypeNames(entries) {
     typeName: nameByTimestamp[e.created_at] ?? (e.type_id ? `#${e.type_id}` : null)
   }));
 }
-
-// -- Timer --
 
 function msToHMS(ms) {
   const t = Math.floor(Math.max(0, ms) / 1000);
@@ -257,16 +279,13 @@ function renderEntries(ticketId, entries) {
 }
 
 // ---------------------------------------------------------------------------
-// Event handlers
+// Shared ticket load logic (used by both Load ID and # Lookup buttons)
 // ---------------------------------------------------------------------------
 
-$('loadBtn').onclick = async () => {
-  const id = $('ticketInput').value.trim();
-
-  // Empty ID — reset everything to blank state
+async function loadTicketById(id) {
   if (!id) {
     await store.set({ ticketId: null, accumulatedMs: 0, startedAt: null });
-    ['ticketInfo', 'entriesSection'].forEach(el => ($(''+el).style.display = 'none'));
+    ['ticketInfo', 'entriesSection'].forEach(el => ($(el).style.display = 'none'));
     $('ticketTitle').textContent = '';
     $('accountedTime').textContent = '';
     $('entriesList').innerHTML = '';
@@ -287,12 +306,38 @@ $('loadBtn').onclick = async () => {
       await store.set({ ticketId: String(id), accumulatedMs: 0, startedAt: null });
     }
 
+    $('ticketInput').value = String(id);
     showTicketInfo(ticket.title, entries);
     renderEntries(String(id), await resolveTypeNames(entries));
     setStatus('');
     render();
   } catch (e) {
     setStatus(e.message, 'error');
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Event handlers
+// ---------------------------------------------------------------------------
+
+$('loadIdBtn').onclick = async () => {
+  await loadTicketById($('ticketInput').value.trim());
+};
+
+$('loadNumBtn').onclick = async () => {
+  const raw = $('ticketInput').value.trim();
+  if (!raw) { await loadTicketById(''); return; }
+
+  setStatus('Resolving ticket number...');
+  $('loadNumBtn').disabled = true;
+  try {
+    const resolvedId = await resolveTicketNumber(raw);
+    setStatus(`Resolved #${raw} → ID ${resolvedId}`);
+    await loadTicketById(resolvedId);
+  } catch (e) {
+    setStatus(e.message, 'error');
+  } finally {
+    $('loadNumBtn').disabled = false;
   }
 };
 
@@ -329,7 +374,7 @@ $('submitBtn').onclick = async () => {
     'signature', 'includeTime', 'activityTypeEnabled', 'activityTypeName'
   ]);
 
-// Snapshot and pause before reading
+  // Snapshot and pause before submitting
   const ms = elapsed(s);
   await store.set({ accumulatedMs: ms, startedAt: null });
   render();
@@ -339,17 +384,26 @@ $('submitBtn').onclick = async () => {
   setStatus('Submitting...');
   try {
     const minutes = ms / 60000;
-   // Build note body from user input, optional time line, and optional signature
+    // Build note: user text, optional "time | type" line, optional signature.
+    const timePart = s.includeTime
+      ? `time submitted: ${parseFloat(minutes.toFixed(2))} min`
+      : null;
+    const typePart = s.activityTypeEnabled && s.activityTypeName
+      ? `activity type: ${s.activityTypeName}`
+      : null;
+    const timeLine = [timePart, typePart].filter(Boolean).join(' | ') || null;
 
     const parts = [
       $('note').value.trim(),
-      s.includeTime                               && `time submitted: ${parseFloat(minutes.toFixed(2))} min`,
-      s.activityTypeEnabled && s.activityTypeName && `activity type: ${s.activityTypeName}`,
+      timeLine,
       s.signature
     ].filter(Boolean);
 
     const note = parts.join('\n') || 'Time logged via extension';
-    await postTimeAccounting(s.ticketId, minutes, note, s.activityTypeEnabled ? s.activityTypeName : null);
+    const effectiveTypeName = s.activityTypeEnabled && s.activityTypeName
+      ? s.activityTypeName
+      : null;
+    await postTimeAccounting(s.ticketId, minutes, note, effectiveTypeName);
 
     // Reset timer on success
     await store.set({ accumulatedMs: 0, startedAt: null, note: '' });
