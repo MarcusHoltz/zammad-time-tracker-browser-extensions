@@ -51,7 +51,7 @@ Hit **Save**. Done.
 - Chrome (or any Chromium based browser)
 - Zammad 6.x
 - API token with `ticket.agent` permission
-- (optional) Time Accounting enabled in your Zammad admin settings (`Admin → Time Accounting`)
+- (optional) Time Accounting Types enabled in your Zammad admin settings (`Admin → Time Accounting`)
 
 ---
 
