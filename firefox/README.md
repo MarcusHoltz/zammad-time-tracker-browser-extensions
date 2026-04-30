@@ -52,7 +52,7 @@ Hit **Save**. Done.
 ## Requirements
 
 - Firefox 128+
-- Zammad 6.x with Time Accounting enabled (`Admin → Time Accounting`)
+- Zammad 6.x
 - API token with `ticket.agent` permission
 - (optional) Time Accounting Types enabled in your Zammad admin settings (`Admin → Time Accounting`)
 
