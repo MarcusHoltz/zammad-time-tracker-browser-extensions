@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -81,53 +82,60 @@
   </style>
 </head>
 <body>
-  <h2>Zammad Settings</h2>
+  <h2 data-i18n="settingsTitle">Zammad Settings</h2>
 
-  <label>Base URL <small>(no trailing slash)</small></label>
-  <input id="url" type="text" placeholder="https://support.example.com">
+  <label><span data-i18n="baseUrl">Base URL</span> <small data-i18n="baseUrlHint">(no trailing slash)</small></label>
+  <input id="url" type="text" data-i18n-placeholder="urlPlaceholder" placeholder="https://support.example.com">
 
-  <label>API Token</label>
-  <input id="token" type="password" placeholder="Your Zammad API token">
+  <label data-i18n="apiToken">API Token</label>
+  <input id="token" type="password" data-i18n-placeholder="tokenPlaceholder" placeholder="Your Zammad API token">
 
-  <label>Note Signature <small>(appended to every note)</small></label>
-  <input id="signature" type="text" placeholder="e.g. Logged via Zammad Browser Extension">
+  <label><span data-i18n="noteSignature">Note Signature</span> <small data-i18n="noteSignatureHint">(appended to every note)</small></label>
+  <input id="signature" type="text" data-i18n-placeholder="signaturePlaceholder" placeholder="e.g. Logged via Zammad Browser Extension">
 
   <label class="checkbox-label">
     <input id="includeTime" type="checkbox">
-    Include submitted time in note body
+    <span data-i18n="includeTime">Include submitted time in note body</span>
   </label>
 
   <hr>
 
+  <label data-i18n="languageLabel">Language</label>
+  <select id="language">
+    <option value="en">English</option>
+    <option value="de">Deutsch</option>
+  </select>
+
   <label class="checkbox-label">
     <input id="darkMode" type="checkbox">
-    Dark mode
+    <span data-i18n="darkMode">Dark mode</span>
   </label>
 
   <hr>
 
   <label class="checkbox-label">
     <input id="activityTypeEnabled" type="checkbox">
-    Enable Activity Type on submission
+    <span data-i18n="activityTypeEnable">Enable Activity Type on submission</span>
   </label>
 
   <div id="activityTypeSection">
     <div class="fetch-row">
       <select id="activityTypeSelect">
-        <option value="">-- click Fetch --</option>
+        <option value="" data-i18n="clickFetch">-- click Fetch --</option>
       </select>
-      <button id="fetchTypesBtn" type="button">Fetch Types</button>
+      <button id="fetchTypesBtn" type="button" data-i18n="fetchTypes">Fetch Types</button>
     </div>
     <div id="fetchStatus"></div>
-    <p class="hint">
+    <p class="hint" data-i18n-html="activityTypeHint">
       Types must be enabled and established. Find them at:<br>
       <strong>Admin &rarr; Time Accounting &rarr; Activity Types</strong>.
     </p>
   </div>
 
-  <button id="saveBtn">Save</button>
+  <button id="saveBtn" data-i18n="save">Save</button>
   <div id="msg"></div>
 
+  <script src="i18n.js"></script>
   <script src="settings.js"></script>
 </body>
 </html>

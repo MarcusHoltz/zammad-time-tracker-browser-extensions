@@ -8,6 +8,7 @@
 //   includeTime              - bool: append "time submitted: X min" to note
 //   activityTypeEnabled      - bool: send activity type on submit
 //   activityTypeName         - activity type name as it appears in Zammad
+//   language                 - UI language ('en' or 'de'), set in Settings
 //
 // The timer is timestamp-based, not counter-based.
 //
@@ -23,7 +24,7 @@ async function zammadFetch(path, options = {}) {
   const { zammadUrl, zammadToken } = await store.get(['zammadUrl', 'zammadToken']);
 
   if (!zammadUrl || !zammadToken) {
-    throw new Error('Zammad not configured. Open Settings.');
+    throw new Error(t('notConfigured'));
   }
 
   const res = await fetch(`${zammadUrl}${path}`, {
@@ -48,7 +49,7 @@ async function zammadFetch(path, options = {}) {
 // Zammad links both records atomically, which is why we use this over the bare time_accountings endpoint.
 async function postTimeAccounting(ticketId, minutes, note, typeName = null) {
   const article = {
-    body: note || 'Time logged via extension',
+    body: note || t('noteDefault'),
     internal: true,
     time_unit: parseFloat(minutes.toFixed(4))
   };
@@ -79,7 +80,7 @@ async function resolveTicketNumber(raw) {
   // Extracts only the trailing digit sequence.
   const normalized = raw.trim().replace(/^.*?(\d+)\s*$/, '$1');
   if (!normalized) {
-    throw new Error(`Could not parse a ticket number from "${raw}".`);
+    throw new Error(t('couldNotParse', raw));
   }
 
   // POST with an explicit ticket.number condition is the reliable exact-match
@@ -97,7 +98,33 @@ async function resolveTicketNumber(raw) {
 
   if (data.record_ids?.length) return String(data.record_ids[0]);
 
-  throw new Error(`No ticket found with number ${normalized}.`);
+  throw new Error(t('noTicketFound', normalized));
+}
+
+// ---------------------------------------------------------------------------
+// Active-tab ticket detection
+// ---------------------------------------------------------------------------
+
+// Extracts the internal ticket ID from a Zammad ticket-zoom URL, but only when
+// the URL sits under the configured Base URL. Zammad routes look like
+// `https://host/#ticket/zoom/12345`.
+function ticketIdFromUrl(tabUrl, baseUrl) {
+  if (!tabUrl || !baseUrl) return null;
+  const base = baseUrl.replace(/\/+$/, '');
+  if (!tabUrl.startsWith(base)) return null;
+  const m = tabUrl.match(/#ticket\/zoom\/(\d+)/);
+  return m ? m[1] : null;
+}
+
+// Reads the active tab's URL and returns the ticket ID it points at, or null.
+async function detectTicketFromActiveTab(baseUrl) {
+  if (!baseUrl) return null;
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    return ticketIdFromUrl(tab?.url, baseUrl);
+  } catch (_) {
+    return null; // tabs API/permission unavailable — silently skip
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -163,7 +190,7 @@ async function render() {
   const hasTicket = !!s.ticketId;
   const running = !!s.startedAt;
 
-  $('toggleBtn').textContent = running ? 'Pause' : 'Start';
+  $('toggleBtn').textContent = running ? t('pause') : t('start');
   $('toggleBtn').disabled = !hasTicket;
   $('resetBtn').disabled  = !hasTicket;
   $('submitBtn').disabled = !hasTicket;
@@ -186,14 +213,14 @@ function showTicketInfo(title, entries) {
   const total = entries.reduce((sum, e) => sum + parseFloat(e.time_unit || '0'), 0);
   $('ticketInfo').style.display = 'block';
   $('ticketTitle').textContent = title;
-  $('accountedTime').textContent = `Total accounted: ${parseFloat(total.toFixed(2))} min`;
+  $('accountedTime').textContent = t('totalAccounted', parseFloat(total.toFixed(2)));
 }
 
 async function refreshTicketData(ticketId) {
   try {
     const entries = await zammadFetch(`/api/v1/tickets/${ticketId}/time_accountings`);
     const total = entries.reduce((sum, e) => sum + parseFloat(e.time_unit || '0'), 0);
-    $('accountedTime').textContent = `Total accounted: ${parseFloat(total.toFixed(2))} min`;
+    $('accountedTime').textContent = t('totalAccounted', parseFloat(total.toFixed(2)));
     renderEntries(ticketId, await resolveTypeNames(entries));
   } catch (_) { /* non-fatal */ }
 }
@@ -218,18 +245,18 @@ function renderEntries(ticketId, entries) {
     const input = document.createElement('input');
     input.type = 'text';
     input.value = parseFloat(entry.time_unit).toFixed(2);
-    input.title = 'Minutes - edit and press Save';
+    input.title = t('minutesTitle');
 
     const saveBtn = document.createElement('button');
-    saveBtn.textContent = 'Save';
+    saveBtn.textContent = t('save');
     saveBtn.className = 'save';
     saveBtn.onclick = async () => {
       const minutes = parseFloat(input.value);
-      if (isNaN(minutes) || minutes < 0) { setStatus('Invalid time value.', 'error'); return; }
+      if (isNaN(minutes) || minutes < 0) { setStatus(t('invalidTime'), 'error'); return; }
       saveBtn.disabled = true;
       try {
         await patchTimeAccounting(ticketId, entry.id, minutes);
-        setStatus('Entry updated.', 'ok');
+        setStatus(t('entryUpdated'), 'ok');
         refreshTicketData(ticketId);
       } catch (e) {
         setStatus(e.message, 'error');
@@ -240,7 +267,7 @@ function renderEntries(ticketId, entries) {
     const delBtn = document.createElement('button');
     delBtn.textContent = '-';
     delBtn.className = 'del';
-    delBtn.title = `Delete ${parseFloat(entry.time_unit).toFixed(2)} min entry`;
+    delBtn.title = t('deleteEntryTitle', parseFloat(entry.time_unit).toFixed(2));
     delBtn.onclick = () => {
       // Replace the row with an inline yes/no prompt.
       // Chrome's native confirm() freezes the extension popup and puts the
@@ -249,17 +276,17 @@ function renderEntries(ticketId, entries) {
 
       const msg = document.createElement('span');
       msg.className = 'entry-date';
-      msg.textContent = 'Delete this entry?';
+      msg.textContent = t('deleteThisEntry');
 
       const yesBtn = document.createElement('button');
-      yesBtn.textContent = 'Yes';
+      yesBtn.textContent = t('yes');
       yesBtn.className = 'save';
       yesBtn.onclick = async () => {
         yesBtn.disabled = true;
         noBtn.disabled = true;
         try {
           await deleteTimeAccounting(ticketId, entry.id);
-          setStatus('Entry deleted.', 'ok');
+          setStatus(t('entryDeleted'), 'ok');
         } catch (e) {
           setStatus(e.message, 'error');
         }
@@ -267,7 +294,7 @@ function renderEntries(ticketId, entries) {
       };
 
       const noBtn = document.createElement('button');
-      noBtn.textContent = 'No';
+      noBtn.textContent = t('no');
       noBtn.onclick = () => refreshTicketData(ticketId);
 
       row.append(msg, yesBtn, noBtn);
@@ -294,7 +321,7 @@ async function loadTicketById(id) {
     return;
   }
 
-  setStatus('Loading...');
+  setStatus(t('loading'));
   try {
     const [ticket, entries] = await Promise.all([
       zammadFetch(`/api/v1/tickets/${id}`),
@@ -328,11 +355,11 @@ $('loadNumBtn').onclick = async () => {
   const raw = $('ticketInput').value.trim();
   if (!raw) { await loadTicketById(''); return; }
 
-  setStatus('Resolving ticket number...');
+  setStatus(t('resolvingNum'));
   $('loadNumBtn').disabled = true;
   try {
     const resolvedId = await resolveTicketNumber(raw);
-    setStatus(`Resolved #${raw} → ID ${resolvedId}`);
+    setStatus(t('resolved', raw, resolvedId));
     await loadTicketById(resolvedId);
   } catch (e) {
     setStatus(e.message, 'error');
@@ -379,17 +406,17 @@ $('submitBtn').onclick = async () => {
   await store.set({ accumulatedMs: ms, startedAt: null });
   render();
 
-  if (ms < 1000) { setStatus('Nothing to submit - timer is at zero.', 'error'); return; }
+  if (ms < 1000) { setStatus(t('nothingToSubmit'), 'error'); return; }
 
-  setStatus('Submitting...');
+  setStatus(t('submitting'));
   try {
     const minutes = ms / 60000;
     // Build note: user text, optional "time | type" line, optional signature.
     const timePart = s.includeTime
-      ? `time submitted: ${parseFloat(minutes.toFixed(2))} min`
+      ? t('noteTimeSubmitted', parseFloat(minutes.toFixed(2)))
       : null;
     const typePart = s.activityTypeEnabled && s.activityTypeName
-      ? `activity type: ${s.activityTypeName}`
+      ? t('noteActivityType', s.activityTypeName)
       : null;
     const timeLine = [timePart, typePart].filter(Boolean).join(' | ') || null;
 
@@ -399,7 +426,7 @@ $('submitBtn').onclick = async () => {
       s.signature
     ].filter(Boolean);
 
-    const note = parts.join('\n') || 'Time logged via extension';
+    const note = parts.join('\n') || t('noteDefault');
     const effectiveTypeName = s.activityTypeEnabled && s.activityTypeName
       ? s.activityTypeName
       : null;
@@ -408,7 +435,7 @@ $('submitBtn').onclick = async () => {
     // Reset timer on success
     await store.set({ accumulatedMs: 0, startedAt: null, note: '' });
     $('note').value = '';
-    setStatus(`Submitted ${parseFloat(minutes.toFixed(2))} min.`, 'ok');
+    setStatus(t('submitted', parseFloat(minutes.toFixed(2))), 'ok');
 
     // Refresh the accounted total so user can see it updated
     refreshTicketData(s.ticketId);
@@ -423,9 +450,29 @@ $('submitBtn').onclick = async () => {
 // ---------------------------------------------------------------------------
 
 (async () => {
-  const s = await store.get(['ticketId', 'zammadUrl', 'zammadToken', 'darkMode', 'note']);
+  const s = await store.get([
+    'ticketId', 'zammadUrl', 'zammadToken', 'darkMode', 'note',
+    'startedAt', 'accumulatedMs', 'language'
+  ]);
+
+  setLang(s.language || 'en');
+  applyStaticI18n();
+
   if (s.darkMode) document.body.classList.add('dark');
   if (s.note) $('note').value = s.note;
+
+  // Auto-fill the ticket from the active tab's URL when it sits under the
+  // configured Base URL. We only adopt it when the popup has no unsubmitted
+  // time on another ticket, so a running/banked timer is never discarded.
+  const urlTicketId  = await detectTicketFromActiveTab(s.zammadUrl);
+  const hasUnsubmitted = !!s.startedAt || (s.accumulatedMs || 0) > 0;
+
+  if (urlTicketId && urlTicketId !== s.ticketId && !hasUnsubmitted
+      && s.zammadUrl && s.zammadToken) {
+    // loadTicketById fetches the ticket, resets the timer and re-renders.
+    await loadTicketById(urlTicketId);
+    return;
+  }
 
   if (s.ticketId && s.zammadUrl && s.zammadToken) {
     $('ticketInput').value = s.ticketId;

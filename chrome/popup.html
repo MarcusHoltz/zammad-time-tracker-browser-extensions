@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="utf-8">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -146,9 +147,9 @@
 <body>
 
   <div class="row">
-    <input id="ticketInput" type="text" placeholder="Ticket ID">
-    <button id="loadIdBtn" title="Load Internal Ticket ID (much shorter than Ticket#)">Load ID</button>
-    <button id="loadNumBtn" title="Use Ticket# (customer ticket number? use this button!)">Ticket#</button>
+    <input id="ticketInput" type="text" data-i18n-placeholder="ticketPlaceholder" placeholder="Ticket ID">
+    <button id="loadIdBtn" data-i18n="loadId" data-i18n-title="loadIdTitle" title="Load Internal Ticket ID (much shorter than Ticket#)">Load ID</button>
+    <button id="loadNumBtn" data-i18n="ticketNum" data-i18n-title="ticketNumTitle" title="Use Ticket# (customer ticket number? use this button!)">Ticket#</button>
   </div>
 
   <div id="ticketInfo">
@@ -158,24 +159,25 @@
 
   <!-- Existing time entries, shown after Load -->
   <div id="entriesSection">
-    <div class="label">Existing entries</div>
+    <div class="label" data-i18n="existingEntries">Existing entries</div>
     <div id="entriesList"></div>
   </div>
 
   <input id="timeInput" type="text" value="00:00:00"
-         spellcheck="false" title="Edit time manually, e.g. 01:30:00">
+         spellcheck="false" data-i18n-title="timeInputTitle" title="Edit time manually, e.g. 01:30:00">
 
   <div class="row">
-    <button id="toggleBtn" disabled>Start</button>
-    <button id="resetBtn"  disabled>Reset</button>
+    <button id="toggleBtn" data-i18n="start" disabled>Start</button>
+    <button id="resetBtn" data-i18n="reset" disabled>Reset</button>
   </div>
 
-  <textarea id="note" placeholder="Note (optional)"></textarea>
+  <textarea id="note" data-i18n-placeholder="notePlaceholder" placeholder="Note (optional)"></textarea>
 
-  <button id="submitBtn" disabled>Submit Time</button>
+  <button id="submitBtn" data-i18n="submitTime" disabled>Submit Time</button>
 
   <div id="status"></div>
 
+  <script src="i18n.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

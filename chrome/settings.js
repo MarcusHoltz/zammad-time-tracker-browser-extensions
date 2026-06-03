@@ -13,8 +13,12 @@ function preselectType(name) {
 }
 
 chrome.storage.local.get(
-  ['zammadUrl', 'zammadToken', 'signature', 'includeTime', 'darkMode', 'activityTypeEnabled', 'activityTypeName'],
-  ({ zammadUrl, zammadToken, signature, includeTime, darkMode, activityTypeEnabled, activityTypeName }) => {
+  ['zammadUrl', 'zammadToken', 'signature', 'includeTime', 'darkMode', 'language', 'activityTypeEnabled', 'activityTypeName'],
+  ({ zammadUrl, zammadToken, signature, includeTime, darkMode, language, activityTypeEnabled, activityTypeName }) => {
+    setLang(language || 'en');
+    get('language').value = language || 'en';
+    applyStaticI18n();
+
     if (zammadUrl)  get('url').value       = zammadUrl;
     if (zammadToken) get('token').value    = zammadToken;
     if (signature)  get('signature').value = signature;
@@ -28,6 +32,12 @@ chrome.storage.local.get(
     if (activityTypeName)    preselectType(activityTypeName);
   }
 );
+
+// Re-translate the page live when the language changes (saved on Save).
+get('language').addEventListener('change', () => {
+  setLang(get('language').value);
+  applyStaticI18n();
+});
 
 get('darkMode').addEventListener('change', () => {
   document.body.classList.toggle('dark', get('darkMode').checked);
@@ -49,12 +59,12 @@ get('fetchTypesBtn').onclick = async () => {
 
   if (!url || !token) {
     status.style.color = 'red';
-    status.textContent = 'Save your URL and Token first.';
+    status.textContent = t('saveUrlTokenFirst');
     return;
   }
 
   status.style.color = '#888';
-  status.textContent = 'Fetching...';
+  status.textContent = t('fetching');
 
   const authHeaders = { 'Authorization': `Token token=${token}` };
 
@@ -96,26 +106,26 @@ get('fetchTypesBtn').onclick = async () => {
       types = [...new Set(log.map(e => e.type).filter(Boolean))].sort();
     } catch (e) {
       status.style.color = 'red';
-      status.textContent = `Failed: ${e.message}`;
+      status.textContent = t('fetchFailed', e.message);
       return;
     }
   }
 
   if (!types.length) {
     status.style.color = '#888';
-    status.textContent =
-      'No active activity types found. Create them at Admin → Time Accounting → Activity Types.';
+    status.textContent = t('noTypesFound');
     return;
   }
 
   const select  = get('activityTypeSelect');
   const current = select.value;
-  select.innerHTML = '<option value="">-- select a type --</option>';
+  select.innerHTML = '';
+  select.add(new Option(t('selectAType'), ''));
   types.forEach(name => select.add(new Option(name, name)));
   if (current) select.value = current;
 
   status.style.color = 'green';
-  status.textContent = `Loaded ${types.length} type${types.length === 1 ? '' : 's'}.`;
+  status.textContent = t('loadedTypes', types.length);
 };
 
 get('saveBtn').onclick = () => {
@@ -124,31 +134,32 @@ get('saveBtn').onclick = () => {
   const signature           = get('signature').value.trim();
   const includeTime         = get('includeTime').checked;
   const darkMode            = get('darkMode').checked;
+  const language            = get('language').value;
   const activityTypeEnabled = get('activityTypeEnabled').checked;
   const activityTypeName    = get('activityTypeSelect').value;
   const msg                 = get('msg');
 
   if (!url.startsWith('https://') && !url.startsWith('http://')) {
     msg.style.color = 'red';
-    msg.textContent = 'URL must start with http:// or https://';
+    msg.textContent = t('urlMustStart');
     return;
   }
   if (!token) {
     msg.style.color = 'red';
-    msg.textContent = 'API token is required.';
+    msg.textContent = t('tokenRequired');
     return;
   }
   if (activityTypeEnabled && !activityTypeName) {
     msg.style.color = 'red';
-    msg.textContent = 'Select an activity type or disable the feature.';
+    msg.textContent = t('selectTypeOrDisable');
     return;
   }
 
   chrome.storage.local.set(
-    { zammadUrl: url, zammadToken: token, signature, includeTime, darkMode, activityTypeEnabled, activityTypeName },
+    { zammadUrl: url, zammadToken: token, signature, includeTime, darkMode, language, activityTypeEnabled, activityTypeName },
     () => {
       msg.style.color = 'green';
-      msg.textContent = 'Saved.';
+      msg.textContent = t('saved');
     }
   );
 };
